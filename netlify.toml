@@ -1,0 +1,30 @@
+# =====================================================================
+#  Netlify configuration
+#
+#  The Next.js adapter is auto-installed by Netlify; you do not need to
+#  add @netlify/plugin-nextjs to package.json yourself.
+# =====================================================================
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+  # --- Secret scanning -------------------------------------------------
+  # Netlify fails a build if it finds an environment variable's VALUE in
+  # the build output. Two of ours are meant to be public and WILL appear
+  # in the client bundle, so they have to be declared here or the deploy
+  # dies with "Secrets scanning found secrets in build output".
+  #
+  # Never add CLERK_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY to this list.
+  # If the scanner ever flags those, it has found a real leak.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,NEXT_PUBLIC_SITE_URL"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

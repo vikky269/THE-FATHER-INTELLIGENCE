@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+.env*.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# secrets & generated content
+prompts/father-framework.md
+.env
+.env.local
+
+# clerk configuration (can include secrets)
+/.clerk/
