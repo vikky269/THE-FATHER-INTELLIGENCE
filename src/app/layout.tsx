@@ -24,13 +24,20 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "The Father Intelligence — Intelligence before decisions",
   description:
     "Institutional-grade global macro intelligence briefings across gold, crypto, equities, FX, rates and energy.",
   openGraph: {
     title: "The Father Intelligence",
     description: "Intelligence before decisions.",
-    images: ["/logo.png"],
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Father Intelligence",
+    description: "Intelligence before decisions.",
+    images: ["/og.png"],
   },
 };
 

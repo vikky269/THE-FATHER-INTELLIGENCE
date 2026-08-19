@@ -2,6 +2,8 @@ import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import Tape from "@/components/Tape";
 import LiquidityLadder from "@/components/LiquidityLadder";
+import LatestReports from "@/components/LatestReports";
+import VideoEmbed from "@/components/VideoEmbed";
 import { Dot, GhostButton, GoldButton, Meter, SectionHead, Wordmark } from "@/components/ui";
 import {
   BRIEFING,
@@ -16,7 +18,20 @@ import {
   SCENARIOS,
 } from "@/lib/reports";
 
-export default function Home() {
+/**
+ * Revalidated every 5 minutes; publishing also calls revalidatePath("/")
+ * so a new briefing appears immediately rather than on the next window.
+ */
+export const revalidate = 300;
+
+/**
+ * Supplied by the brand owner. Set NEXT_PUBLIC_YOUTUBE_URL to any YouTube
+ * link (watch, youtu.be, shorts or a bare ID). When unset the section is
+ * omitted entirely rather than rendering an empty frame.
+ */
+const VIDEO_URL = process.env.NEXT_PUBLIC_YOUTUBE_URL ?? "";
+
+export default async function Home() {
   return (
     <>
       <SiteNav />
@@ -44,7 +59,7 @@ export default function Home() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <GoldButton href="/sign-up">Create your account</GoldButton>
-              <GhostButton href="#briefing">Read today&apos;s call</GhostButton>
+              <GhostButton href="/reports">Read previous reports </GhostButton>
             </div>
 
             <dl className="mt-12 grid max-w-lg grid-cols-3 gap-px border border-line bg-line">
@@ -254,11 +269,28 @@ export default function Home() {
         </ul>
       </section>
 
+      {/* ----------------------------------------------------------- video */}
+      {VIDEO_URL && (
+        <section id="how-it-works" className="border-y border-line bg-surface/40">
+          <div className="mx-auto max-w-4xl scroll-mt-24 px-5 py-20">
+            <SectionHead
+              index="IV"
+              title="How it works"
+              kicker="A short walkthrough of the framework and what a briefing actually tells you."
+            />
+            <VideoEmbed url={VIDEO_URL} />
+          </div>
+        </section>
+      )}
+
+      {/* --------------------------------------------------------- reports */}
+      <LatestReports />
+
       {/* -------------------------------------------------- classification */}
       <section className="border-y border-line bg-surface/40">
         <div className="mx-auto max-w-6xl px-5 py-20">
           <SectionHead
-            index="IV"
+            index="VI"
             title="What is fact, what is framework"
             kicker="Every line in a briefing is labelled by where it came from. You should always know which part is a market price and which part is a model output."
           />
@@ -335,7 +367,7 @@ export default function Home() {
               © {new Date().getFullYear()} The Father Intelligence. All rights reserved.
             </p>
             <Link
-              href="/sign-up"
+              href="/sign-in"
               className="font-mono text-[10px] tracking-[0.16em] text-gold uppercase hover:text-gold-hi"
             >
               Member sign in →

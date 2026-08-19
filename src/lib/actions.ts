@@ -12,9 +12,14 @@ const CATEGORIES = ["markets", "music", "business", "culture", "research"];
 
 /** Refresh every surface a report can appear on. */
 function refresh(slug?: string) {
+  revalidatePath("/");          // landing page "Latest briefings"
+  revalidatePath("/reports");   // public archive
   revalidatePath("/dashboard");
   revalidatePath("/admin");
-  if (slug) revalidatePath(`/dashboard/reports/${slug}`);
+  if (slug) {
+    revalidatePath(`/reports/${slug}`);
+    revalidatePath(`/dashboard/reports/${slug}`);
+  }
 }
 
 function readForm(formData: FormData) {

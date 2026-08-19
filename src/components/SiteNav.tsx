@@ -3,10 +3,10 @@ import ThemeToggle from "./ThemeToggle";
 import { Wordmark } from "./ui";
 
 const LINKS = [
-  { href: "#briefing", label: "The briefing" },
-  { href: "#engine", label: "The engine" },
-  { href: "#coverage", label: "Coverage" },
-  { href: "#access", label: "Access" },
+  { href: "/reports", label: "Briefings" },
+  { href: "/#engine", label: "The engine" },
+  { href: "/#coverage", label: "Coverage" },
+  { href: "/#access", label: "Access" },
 ];
 
 export default function SiteNav() {

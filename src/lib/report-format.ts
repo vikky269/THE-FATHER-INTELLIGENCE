@@ -296,3 +296,29 @@ export function slugify(input: string): string {
     .slice(0, 80)
     .replace(/-+$/g, "");
 }
+
+/**
+ * Cuts a normalised report down to a teaser for non-members.
+ *
+ * Truncating markdown naively can leave an unclosed code fence, which would
+ * swallow the rest of the page into a diagram block, so any odd fence is
+ * closed before returning. The cut is also pulled back to the last paragraph
+ * break so the teaser doesn't end mid-sentence.
+ */
+export function previewMarkdown(
+  markdown: string,
+  maxChars = 1600,
+): { preview: string; truncated: boolean } {
+  if (markdown.length <= maxChars) return { preview: markdown, truncated: false };
+
+  let cut = markdown.slice(0, maxChars);
+
+  const lastBreak = cut.lastIndexOf("\n\n");
+  if (lastBreak > maxChars * 0.5) cut = cut.slice(0, lastBreak);
+
+  // Balance code fences so the teaser can't run away with the layout.
+  const fences = (cut.match(/```/g) ?? []).length;
+  if (fences % 2 !== 0) cut += "\n```";
+
+  return { preview: cut.trimEnd(), truncated: true };
+}
