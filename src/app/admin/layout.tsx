@@ -23,6 +23,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
 
           <div className="flex items-center gap-4">
+                        <Link
+              href="/admin/settings"
+              className="font-mono text-[10px] tracking-[0.16em] text-muted uppercase hover:text-gold"
+            >
+              Settings
+            </Link>
             <Link
               href="/dashboard"
               className="font-mono text-[10px] tracking-[0.16em] text-muted uppercase hover:text-gold"

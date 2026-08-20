@@ -7,7 +7,8 @@ import { listPublished } from "@/lib/db";
 export const revalidate = 300;
 
 export const metadata = {
-  title: "Briefing archive — The Father Intelligence",
+  title: "Briefing archive",
+  alternates: { canonical: "/reports" },
   description:
     "Every published Market Universe briefing — macro, quant, liquidity, positioning and reaction intelligence.",
 };

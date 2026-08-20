@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { db, getById, uniqueSlug, type ReportInsert } from "@/lib/db";
 import { normaliseReport, slugify, suggestExcerpt } from "@/lib/report-format";
+import { setSetting } from "@/lib/settings";
+import { parseYouTubeId } from "@/lib/youtube";
 
 export type FormState = { error?: string; ok?: string } | undefined;
 
@@ -145,4 +147,45 @@ export async function deleteReport(formData: FormData) {
 
   await db().from("reports").delete().eq("id", id);
   refresh(existing.slug);
+}
+
+
+
+/**
+ * Landing-page video, editable from /admin/settings.
+ *
+ * Stored in the database rather than an env var so the brand owner can swap
+ * the video without a redeploy. An empty value hides the section entirely.
+ */
+export async function saveVideoSettings(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+
+  const url = String(formData.get("youtubeUrl") ?? "").trim();
+  const title = String(formData.get("youtubeTitle") ?? "").trim();
+
+  if (url && !parseYouTubeId(url)) {
+    return {
+      error:
+        "That does not look like a YouTube link. Paste a youtube.com/watch, youtu.be or shorts URL.",
+    };
+  }
+
+  try {
+    await setSetting("youtube_url", url);
+    await setSetting("youtube_title", title || "How The Father Intelligence works");
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Could not save." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+
+  return {
+    ok: url
+      ? "Video saved. It is now live on the landing page."
+      : "Video removed from the landing page.",
+  };
 }

@@ -554,3 +554,19 @@
 .cl-footer {
   background: transparent;
 }
+
+/* ----------------------------------------------------- hero globe image */
+
+/**
+ * Glow behind the artwork. The PNG already fades to transparent at its
+ * edges, so this only has to add atmosphere, not hide a seam.
+ */
+.globe-halo {
+  position: absolute;
+  inset: -18% -8%;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 58% at 50% 50%, color-mix(in srgb, var(--gold) 20%, transparent), transparent 72%),
+    radial-gradient(38% 48% at 72% 32%, color-mix(in srgb, var(--royal) 20%, transparent), transparent 74%);
+  filter: blur(26px);
+}

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { parseYouTubeId } from "@/lib/youtube";
+
+export { parseYouTubeId };
 
 /**
  * Click-to-play YouTube embed.
@@ -10,28 +13,6 @@ import { useState } from "react";
  * load, and no third-party cookies are set until someone actually chooses
  * to watch. The privacy-enhanced (youtube-nocookie) host is used either way.
  */
-
-/** Accepts a full URL in any of YouTube's shapes, or a bare 11-char ID. */
-export function parseYouTubeId(input: string): string | null {
-  const raw = input?.trim();
-  if (!raw) return null;
-  if (/^[\w-]{11}$/.test(raw)) return raw;
-
-  const patterns = [
-    /youtu\.be\/([\w-]{11})/,
-    /youtube\.com\/watch\?(?:.*&)?v=([\w-]{11})/,
-    /youtube\.com\/embed\/([\w-]{11})/,
-    /youtube\.com\/shorts\/([\w-]{11})/,
-    /youtube\.com\/live\/([\w-]{11})/,
-  ];
-
-  for (const p of patterns) {
-    const m = raw.match(p);
-    if (m) return m[1];
-  }
-  return null;
-}
-
 export default function VideoEmbed({
   url,
   title = "The Father Intelligence — how it works",

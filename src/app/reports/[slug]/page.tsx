@@ -6,6 +6,7 @@ import ReportBody, { TruthProtocol } from "@/components/ReportBody";
 import { GhostButton, GoldButton } from "@/components/ui";
 import { getPublished } from "@/lib/db";
 import { previewMarkdown } from "@/lib/report-format";
+import { reportJsonLd } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -13,14 +14,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   try {
     const report = await getPublished(slug);
-    if (!report) return { title: "Report not found — The Father Intelligence" };
+    if (!report) return { title: "Report not found" };
     return {
-      title: `${report.title} — The Father Intelligence`,
+      title: report.title,
       description: report.excerpt,
+      alternates: { canonical: `/reports/${slug}` },
       openGraph: { title: report.title, description: report.excerpt, type: "article" },
     };
   } catch {
-    return { title: "Report — The Father Intelligence" };
+    return { title: "Report" };
   }
 }
 
@@ -59,6 +61,10 @@ export default async function PublicReportPage({
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(reportJsonLd(report)) }}
+      />
       <SiteNav />
 
       <article className="mx-auto max-w-3xl px-5 py-12">

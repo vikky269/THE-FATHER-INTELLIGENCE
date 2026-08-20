@@ -1,9 +1,12 @@
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
-import Tape from "@/components/Tape";
+
 import LiquidityLadder from "@/components/LiquidityLadder";
 import LatestReports from "@/components/LatestReports";
 import VideoEmbed from "@/components/VideoEmbed";
+import GlobeNetwork from "@/components/GlobeNetwork";
+import { MarketTape, RegimePanel, StatCard } from "@/components/HeroPanels";
+import { getSettings } from "@/lib/settings";
 import { Dot, GhostButton, GoldButton, Meter, SectionHead, Wordmark } from "@/components/ui";
 import {
   BRIEFING,
@@ -17,6 +20,7 @@ import {
   QUARTERLY_THEORY,
   SCENARIOS,
 } from "@/lib/reports";
+import HeroVisual from "@/components/HeroVisual";
 
 /**
  * Revalidated every 5 minutes; publishing also calls revalidatePath("/")
@@ -24,68 +28,98 @@ import {
  */
 export const revalidate = 300;
 
-/**
- * Supplied by the brand owner. Set NEXT_PUBLIC_YOUTUBE_URL to any YouTube
- * link (watch, youtu.be, shorts or a bare ID). When unset the section is
- * omitted entirely rather than rendering an empty frame.
- */
-const VIDEO_URL = process.env.NEXT_PUBLIC_YOUTUBE_URL ?? "";
-
 export default async function Home() {
+  // Video is managed from /admin/settings so it can change without a deploy.
+  const settings = await getSettings(["youtube_url", "youtube_title"]);
+  const videoUrl = settings.youtube_url;
+  const videoTitle = settings.youtube_title || "How The Father Intelligence works";
+
   return (
     <>
       <SiteNav />
 
       {/* ------------------------------------------------------------ hero */}
-      <section className="relative mx-auto max-w-6xl px-5 pt-16 pb-14 sm:pt-24">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
-          <div className="rise">
-            <p className="eyebrow">
-              Mission Control · {BRIEFING.version} · {BRIEFING.session}
-            </p>
+      <section id="intelligence" className="relative overflow-hidden scroll-mt-20">
+        <div className="dotfield" aria-hidden />
 
-            <h1 className="font-display mt-6 text-[2.6rem] leading-[1.05] font-bold tracking-tight sm:text-6xl">
-              <span className="gilt">Intelligence</span>
-              <br />
-              <span className="text-fg">before decisions.</span>
-            </h1>
+        <div className="relative mx-auto max-w-6xl px-5 pt-12 pb-10 sm:pt-16">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
+            <div className="rise">
+              <div className="flex items-start gap-4">
+                <span className="font-mono mt-1 border border-line px-2.5 py-1 text-[11px] text-gold">
+                  01
+                </span>
+                <div className="font-mono text-[11px] leading-relaxed tracking-[0.18em] text-gold uppercase">
+                  <p>
+                    Mission Control · {BRIEFING.version}
+                  </p>
+                  <p className="text-muted">{BRIEFING.session}</p>
+                </div>
+              </div>
 
-            <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-fg/70">
-              One institutional-grade macro briefing, published ahead of the London and New York
-              sessions. It reads the whole board at once — rates, the dollar, energy, metals,
-              equities and crypto — and tells you which chain of cause and effect is actually
-              running today.
-            </p>
+              <h1 className="font-display mt-7 text-[2.7rem] leading-[0.98] font-bold tracking-tight sm:text-6xl lg:text-[4.2rem]">
+                <span className="gilt block">INTELLIGENCE</span>
+                <span className="block text-fg">
+                  BEFORE DECISIONS<span className="text-gold">.</span>
+                </span>
+              </h1>
 
-            <div className="mt-9 flex flex-wrap gap-3">
-              <GoldButton href="/sign-up">Create your account</GoldButton>
-              <GhostButton href="/reports">Read previous reports </GhostButton>
+              <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-fg/75">
+                Institutional-grade macro intelligence that reads the whole board before the crowd
+                reacts. Rates, the dollar, energy, metals, equities and crypto — connected by cause
+                and effect.
+              </p>
+
+              <div className="mt-9 flex flex-wrap gap-3">
+                <GoldButton href="/sign-up">Create your account</GoldButton>
+                <GhostButton href="/reports">Read previous reports</GhostButton>
+              </div>
             </div>
 
-            <dl className="mt-12 grid max-w-lg grid-cols-3 gap-px border border-line bg-line">
-              {[
-                { k: "Mission score", v: BRIEFING.missionScore.toFixed(1) },
-                { k: "Framework confidence", v: `${BRIEFING.frameworkConfidence}` },
-                { k: "Composite sentiment", v: `${BRIEFING.compositeSentiment}` },
-              ].map((s) => (
-                <div key={s.k} className="bg-base px-4 py-4">
-                  <dt className="font-mono text-[9px] tracking-[0.16em] text-muted uppercase">
-                    {s.k}
-                  </dt>
-                  <dd className="font-display gilt mt-2 text-2xl font-bold">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
+            {/* Globe: SVG rather than a raster asset, so it scales and themes */}
+            <div className="rise relative mx-auto aspect-square w-full max-w-[460px]" style={{ animationDelay: "140ms" }}>
+              {/* <GlobeNetwork /> */}
+              <HeroVisual />
+            </div>
           </div>
 
-          {/* The signature: today's board, drawn to scale */}
-          <div className="rise" style={{ animationDelay: "140ms" }}>
-            <LiquidityLadder />
+          {/* Scores + regime */}
+          <div className="mt-12 grid gap-4 lg:grid-cols-[1fr_1fr_1fr_1.4fr]">
+            <StatCard
+              icon="target"
+              value={BRIEFING.missionScore.toFixed(1)}
+              label="Mission score"
+              status="Very high conviction"
+              progress={BRIEFING.missionScore}
+            />
+            <StatCard
+              icon="shield"
+              value={`${BRIEFING.frameworkConfidence}%`}
+              label="Framework confidence"
+              status="Multi-signal alignment"
+              progress={BRIEFING.frameworkConfidence}
+            />
+            <StatCard
+              icon="pulse"
+              value={`${BRIEFING.compositeSentiment}`}
+              label="Composite sentiment"
+              status="Risk-on"
+              progress={BRIEFING.compositeSentiment}
+            />
+            <RegimePanel />
           </div>
+
+          <p className="font-mono mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] tracking-[0.14em] text-muted uppercase">
+            <span className="flex items-center gap-2">
+              <span className="signal-dot" data-signal="positive" aria-hidden />
+              Framework active
+            </span>
+            <span>Briefing · {BRIEFING.dateLabel}</span>
+          </p>
         </div>
       </section>
 
-      <Tape />
+      <MarketTape />
 
       {/* -------------------------------------------------------- briefing */}
       <section id="briefing" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20">
@@ -95,14 +129,18 @@ export default async function Home() {
           kicker={`${BRIEFING.dateLabel} · ${BRIEFING.session}. Six engines are scored independently, then reconciled into a single strategic bias.`}
         />
 
+        <div className="mb-8 grid gap-8 lg:grid-cols-[1fr_400px]">
+          <div className="card p-6 sm:p-8">
+            <p className="text-[15px] leading-relaxed text-fg/85">{EXECUTIVE_INTELLIGENCE}</p>
+          </div>
+          <LiquidityLadder compact />
+        </div>
+
         <div className="card relative overflow-hidden p-6 sm:p-8">
-          <p className="max-w-3xl text-[15px] leading-relaxed text-fg/85">
-            {EXECUTIVE_INTELLIGENCE}
-          </p>
 
-          <div className="rule-gold my-8" />
+          <p className="eyebrow">Executive command dashboard</p>
 
-          <ul className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-6 grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
             {COMMAND_ENGINES.map((e) => (
               <li key={e.name} className="bg-surface px-5 py-5">
                 <div className="flex items-start justify-between gap-3">
@@ -270,15 +308,15 @@ export default async function Home() {
       </section>
 
       {/* ----------------------------------------------------------- video */}
-      {VIDEO_URL && (
+      {videoUrl && (
         <section id="how-it-works" className="border-y border-line bg-surface/40">
           <div className="mx-auto max-w-4xl scroll-mt-24 px-5 py-20">
             <SectionHead
               index="IV"
-              title="How it works"
+              title={videoTitle}
               kicker="A short walkthrough of the framework and what a briefing actually tells you."
             />
-            <VideoEmbed url={VIDEO_URL} />
+            <VideoEmbed url={videoUrl} title={videoTitle} />
           </div>
         </section>
       )}
@@ -287,7 +325,7 @@ export default async function Home() {
       <LatestReports />
 
       {/* -------------------------------------------------- classification */}
-      <section className="border-y border-line bg-surface/40">
+      <section id="about" className="scroll-mt-24 border-y border-line bg-surface/40">
         <div className="mx-auto max-w-6xl px-5 py-20">
           <SectionHead
             index="VI"
@@ -378,3 +416,4 @@ export default async function Home() {
     </>
   );
 }
+

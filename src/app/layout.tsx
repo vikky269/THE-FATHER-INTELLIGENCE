@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Cinzel, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { SITE, organizationJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const cinzel = Cinzel({
@@ -23,22 +24,58 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
+/**
+ * Icons are file-based conventions, not metadata:
+ *   src/app/favicon.ico     → browser tabs, bookmarks
+ *   src/app/icon.png        → modern browsers, higher resolution
+ *   src/app/apple-icon.png  → iOS home-screen
+ * Next.js finds these by filename and emits the <link> tags itself.
+ *
+ * metadataBase resolves relative image paths to absolute URLs, which social
+ * platforms require. Without it Next warns and falls back to localhost, so
+ * shared links show no preview image.
+ */
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "The Father Intelligence — Intelligence before decisions",
-  description:
-    "Institutional-grade global macro intelligence briefings across gold, crypto, equities, FX, rates and energy.",
-  openGraph: {
-    title: "The Father Intelligence",
-    description: "THE FATHER INTELLIGENCE | Data, Economic Insights, Macro & Market Analytics For Traders, Institutions, Culture",
-    images: [{ url: "/og.png", width: 1200, height: 630 }],
+  metadataBase: new URL(SITE.url),
+
+  title: {
+    default: SITE.title,
+    // Child pages set only their own name; the brand is appended here.
+    template: `%s | THE FATHER INTELLIGENCE`,
   },
+  description: SITE.description,
+  keywords: [...SITE.keywords],
+  applicationName: SITE.name,
+  authors: [{ name: SITE.name, url: SITE.url }],
+  creator: SITE.name,
+  publisher: SITE.name,
+
+  alternates: { canonical: "/" },
+
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    title: SITE.title,
+    description: SITE.description,
+    url: SITE.url,
+    locale: "en",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: SITE.name }],
+  },
+
   twitter: {
     card: "summary_large_image",
-    title: "The Father Intelligence",
-    description: "Intelligence before decisions.",
+    title: SITE.title,
+    description: SITE.description,
     images: ["/og.png"],
   },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
+  },
+
+  category: "finance",
 };
 
 /**
@@ -58,6 +95,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        {/* Organization + WebSite structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
       </head>
       <body className="min-h-screen antialiased">
         <div className="vignette" aria-hidden />

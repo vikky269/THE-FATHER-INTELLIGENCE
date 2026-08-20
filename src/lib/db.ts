@@ -45,6 +45,12 @@ export type ReportRow = ReportInsert & {
 type Database = {
   public: {
     Tables: {
+            site_settings: {
+        Row: { key: string; value: string; updated_at: string };
+        Insert: { key: string; value: string };
+        Update: { value?: string };
+        Relationships: [];
+      };
       reports: {
         Row: ReportRow;
         Insert: ReportInsert;
