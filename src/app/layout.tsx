@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     "Institutional-grade global macro intelligence briefings across gold, crypto, equities, FX, rates and energy.",
   openGraph: {
     title: "The Father Intelligence",
-    description: "Intelligence before decisions.",
+    description: "THE FATHER INTELLIGENCE | Data, Economic Insights, Macro & Market Analytics For Traders, Institutions, Culture",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: {
