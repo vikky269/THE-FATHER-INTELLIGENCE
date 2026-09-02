@@ -21,6 +21,8 @@ import {
   SCENARIOS,
 } from "@/lib/reports";
 import HeroVisual from "@/components/HeroVisual";
+import TodaysBriefing from "@/components/TodaysBriefing";
+import { listPublished } from "@/lib/db";
 
 /**
  * Revalidated every 5 minutes; publishing also calls revalidatePath("/")
@@ -33,6 +35,12 @@ export default async function Home() {
   const settings = await getSettings(["youtube_url", "youtube_title"]);
   const videoUrl = settings.youtube_url;
   const videoTitle = settings.youtube_title || "How The Father Intelligence works";
+
+  // Latest published report drives the hero kicker and the briefing section,
+  // so the dates on the page always match what is actually published.
+  const latest = await listPublished(1)
+    .then((r) => r[0] ?? null)
+    .catch(() => null);
 
   return (
     <>
@@ -49,20 +57,45 @@ export default async function Home() {
                 <span className="font-mono mt-1 border border-line px-2.5 py-1 text-[11px] text-gold">
                   01
                 </span>
-                <div className="font-mono text-[11px] leading-relaxed tracking-[0.18em] text-gold uppercase">
+                {/* <div className="font-mono text-[11px] leading-relaxed tracking-[0.18em] text-gold uppercase mb-6">
                   <p>
                     Mission Control · {BRIEFING.version}
                   </p>
                   <p className="text-muted">{BRIEFING.session}</p>
+                </div> */}
+
+
+                <div className="font-mono text-[11px] leading-relaxed tracking-[0.18em] text-gold uppercase">
+                  <p>
+                    Mission Control
+                    {latest?.framework_version ? ` · ${latest.framework_version}` : ""}
+                  </p>
+                  <p className="text-muted">
+                    {latest?.session_label ?? latest?.category ?? BRIEFING.session}
+                  </p>
                 </div>
               </div>
 
-              <h1 className="font-display mt-7 text-[2.7rem] leading-[0.98] font-bold tracking-tight sm:text-6xl lg:text-[4.2rem]">
-                <span className="gilt block">INTELLIGENCE</span>
+              <h1 className="font-display mt-7 text-[2.7rem] leading-[0.98] font-bold tracking-tight sm:text-6xl lg:text-[5.2rem]">
+                <span className="gilt block">THE FATHER</span>
                 <span className="block text-fg">
-                  BEFORE DECISIONS<span className="text-gold">.</span>
+                INTELLIGENCE<span className="text-gold"></span>
                 </span>
               </h1>
+
+{/* 
+              <p className="font-display mt-5 text-xl leading-[1.1] tracking-[0.06em] sm:text-2xl lg:text-3xl">
+                <span className="gilt block">Intelligence before</span>
+                <span className="block text-fg">
+                  decisions<span className="text-gold">.</span>
+                </span>
+              </p> */}
+
+
+              <p className="font-display mt-5 text-xl leading-tight tracking-[0.06em] sm:text-2xl lg:text-3xl">
+                <span className="gilt">Intelligence before decisions</span>
+                <span className="text-gold">.</span>
+              </p>
 
               <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-fg/75">
                 Institutional-grade macro intelligence that reads the whole board before the crowd
@@ -122,7 +155,7 @@ export default async function Home() {
       <MarketTape />
 
       {/* -------------------------------------------------------- briefing */}
-      <section id="briefing" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20">
+      {/* <section id="briefing" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20">
         <SectionHead
           index="I"
           title="Today's briefing"
@@ -160,7 +193,10 @@ export default async function Home() {
             ))}
           </ul>
         </div>
-      </section>
+      </section> */}
+
+      {/* -------------------------------------------------------- briefing */}
+      <TodaysBriefing report={latest} />
 
       {/* ---------------------------------------------------------- engine */}
       <section id="engine" className="scroll-mt-24 border-y border-line bg-surface/40">
