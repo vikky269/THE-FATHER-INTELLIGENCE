@@ -29,9 +29,9 @@ export default function AuthShell({
         <div className="relative max-w-md">
           <p className="eyebrow">Institutional Mission Control</p>
           <h2 className="font-display mt-6 text-3xl leading-tight font-bold">
-            <span className="gilt">Intelligence</span>
+            <span className="gilt">The father </span>
             <br />
-            <span className="text-fg">before decisions.</span>
+            <span className="text-fg">Intelligence</span>
           </h2>
           <p className="mt-6 text-sm leading-relaxed text-muted">
             Macro, quant, liquidity, positioning and reaction intelligence — published across the
