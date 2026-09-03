@@ -23,6 +23,7 @@ import {
 import HeroVisual from "@/components/HeroVisual";
 import TodaysBriefing from "@/components/TodaysBriefing";
 import { listPublished } from "@/lib/db";
+import MissionStrip from "@/components/MissionStrip";
 
 /**
  * Revalidated every 5 minutes; publishing also calls revalidatePath("/")
@@ -47,110 +48,89 @@ export default async function Home() {
       <SiteNav />
 
       {/* ------------------------------------------------------------ hero */}
+        
+               {/* ------------------------------------------------------------ hero */}
       <section id="intelligence" className="relative overflow-hidden scroll-mt-20">
         <div className="dotfield" aria-hidden />
 
-        <div className="relative mx-auto max-w-6xl px-5 pt-12 pb-10 sm:pt-16">
+        <div className="relative mx-auto max-w-6xl px-5 pt-10 pb-12 sm:pt-14">
+          {/*
+            Order is deliberate: the visual is first in the DOM so it sits
+            above the copy on mobile, then flips to the right-hand column
+            from lg upward.
+          */}
           <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
-            <div className="rise">
+
+           <div className="rise">
               <div className="flex items-start gap-4">
                 <span className="font-mono mt-1 border border-line px-2.5 py-1 text-[11px] text-gold">
                   01
                 </span>
-                {/* <div className="font-mono text-[11px] leading-relaxed tracking-[0.18em] text-gold uppercase mb-6">
-                  <p>
-                    Mission Control · {BRIEFING.version}
-                  </p>
-                  <p className="text-muted">{BRIEFING.session}</p>
-                </div> */}
-
-
                 <div className="font-mono text-[11px] leading-relaxed tracking-[0.18em] text-gold uppercase">
-                  <p>
-                    Mission Control
-                    {latest?.framework_version ? ` · ${latest.framework_version}` : ""}
-                  </p>
+                  <p>Mission Control™</p>
                   <p className="text-muted">
                     {latest?.session_label ?? latest?.category ?? BRIEFING.session}
                   </p>
                 </div>
               </div>
 
-              <h1 className="font-display mt-7 text-[2.7rem] leading-[0.98] font-bold tracking-tight sm:text-6xl lg:text-[5.2rem]">
+              <h1 className="font-display mt-7 text-[2.5rem] leading-[0.98] font-bold tracking-tight sm:text-5xl lg:text-[4rem]">
                 <span className="gilt block">THE FATHER</span>
                 <span className="block text-fg">
-                INTELLIGENCE<span className="text-gold"></span>
+                  INTELLIGENCE<span className="align-super text-[0.28em] text-gold">™</span>
                 </span>
               </h1>
 
-{/* 
-              <p className="font-display mt-5 text-xl leading-[1.1] tracking-[0.06em] sm:text-2xl lg:text-3xl">
-                <span className="gilt block">Intelligence before</span>
-                <span className="block text-fg">
-                  decisions<span className="text-gold">.</span>
-                </span>
-              </p> */}
-
-
+              {/* Tagline: sized independently — every breakpoint steps up,
+                  never back to heading size. */}
               <p className="font-display mt-5 text-xl leading-tight tracking-[0.06em] sm:text-2xl lg:text-3xl">
                 <span className="gilt">Intelligence before decisions</span>
                 <span className="text-gold">.</span>
               </p>
 
-              <p className="mt-7 max-w-xl text-[15px] leading-relaxed text-fg/75">
-                Institutional-grade macro intelligence that reads the whole board before the crowd
-                reacts. Rates, the dollar, energy, metals, equities and crypto — connected by cause
-                and effect.
+              <p className="mt-7 max-w-xl text-[17px] leading-relaxed text-fg">
+                See the market before the market becomes obvious.
               </p>
 
+              <div className="mt-5 max-w-xl space-y-4 text-[15px] leading-relaxed text-fg/75">
+                <p>
+                  THE FATHER INTELLIGENCE™ delivers data, economic insights, macro and market
+                  analytics for traders, institutions and culture.
+                </p>
+                <p>
+                  We read the market as one connected system: rates, liquidity, the U.S. dollar,
+                  commodities, Gold, equities, crypto, positioning, volatility, macroeconomic data
+                  and institutional flows.
+                </p>
+                <p>
+                  The objective is not more information. It is to identify what changed, why it
+                  changed, what is driving price now, what is likely to happen next, and where
+                  capital deserves permission to act.
+                </p>
+              </div>
+
               <div className="mt-9 flex flex-wrap gap-3">
-                <GoldButton href="/sign-up">Create your account</GoldButton>
-                <GhostButton href="/reports">Read previous reports</GhostButton>
+                <GoldButton href="/sign-up">Enter Mission Control</GoldButton>
+                <GhostButton href="/reports">Read latest intelligence</GhostButton>
               </div>
             </div>
 
-            {/* Globe: SVG rather than a raster asset, so it scales and themes */}
-            <div className="rise relative mx-auto aspect-square w-full max-w-[460px]" style={{ animationDelay: "140ms" }}>
-              {/* <GlobeNetwork /> */}
+
+            <div
+              className="rise relative  mx-auto w-full max-w-[480px] lg:order-2"
+              style={{ animationDelay: "140ms" }}
+            >
               <HeroVisual />
             </div>
+
+           
           </div>
 
-          {/* Scores + regime */}
-          <div className="mt-12 grid gap-4 lg:grid-cols-[1fr_1fr_1fr_1.4fr]">
-            <StatCard
-              icon="target"
-              value={BRIEFING.missionScore.toFixed(1)}
-              label="Mission score"
-              status="Very high conviction"
-              progress={BRIEFING.missionScore}
-            />
-            <StatCard
-              icon="shield"
-              value={`${BRIEFING.frameworkConfidence}%`}
-              label="Framework confidence"
-              status="Multi-signal alignment"
-              progress={BRIEFING.frameworkConfidence}
-            />
-            <StatCard
-              icon="pulse"
-              value={`${BRIEFING.compositeSentiment}`}
-              label="Composite sentiment"
-              status="Risk-on"
-              progress={BRIEFING.compositeSentiment}
-            />
-            <RegimePanel />
-          </div>
-
-          <p className="font-mono mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] tracking-[0.14em] text-muted uppercase">
-            <span className="flex items-center gap-2">
-              <span className="signal-dot" data-signal="positive" aria-hidden />
-              Framework active
-            </span>
-            <span>Briefing · {BRIEFING.dateLabel}</span>
-          </p>
+          <MissionStrip />
         </div>
       </section>
+
+
 
       <MarketTape />
 

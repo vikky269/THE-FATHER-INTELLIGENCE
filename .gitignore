@@ -13,3 +13,5 @@ prompts/father-framework.md
 
 # clerk configuration (can include secrets)
 /.clerk/
+prompts/*.md
+!prompts/README.md
