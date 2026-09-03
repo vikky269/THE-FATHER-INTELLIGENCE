@@ -413,3 +413,23 @@ export const MARKET_DESKS: MarketDesk[] = [
 export function getDesk(slug: string) {
   return MARKET_DESKS.find((d) => d.slug === slug);
 }
+
+
+/* ------------------------------------------------------- mission strip */
+
+/**
+ * The five headline readings under the hero.
+ *
+ * Hand-maintained for now. When the generator lands, these come off the
+ * latest report record instead — the shape stays the same, so nothing in
+ * the UI has to change.
+ */
+export const MISSION_STRIP: { label: string; value: string; signal: Signal }[] = [
+  { label: "Market state", value: "Expansion (cooling)", signal: "positive" },
+  { label: "Primary battlefield", value: "Gold · 4,395–4,400", signal: "caution" },
+  { label: "Hero vs Dragon™", value: "84% / 4%", signal: "positive" },
+  { label: "Capital permission™", value: "62 / 100", signal: "caution" },
+  { label: "Next decision level", value: "4,400", signal: "neutral" },
+];
+
+export const SCOREBOARD_LINE = "Reality owns the scoreboard.";
