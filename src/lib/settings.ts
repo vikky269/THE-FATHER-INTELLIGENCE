@@ -8,7 +8,7 @@ import { db } from "./db";
  * the fallback instead of taking down the landing page.
  */
 
-export type SettingKey = "youtube_url" | "youtube_title";
+export type SettingKey = "youtube_url" | "youtube_title" | "auto_publish";
 
 export async function getSetting(key: SettingKey, fallback = ""): Promise<string> {
   try {
