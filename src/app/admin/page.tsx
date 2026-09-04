@@ -19,7 +19,8 @@ export default async function AdminPage({
   }
 
   return (
-    <div className="space-y-8">
+    // overflow-hidden stops a long title from widening the whole page
+    <div className="space-y-8 overflow-hidden">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">Publishing</p>
@@ -49,10 +50,6 @@ export default async function AdminPage({
         <div className="card px-5 py-6">
           <p className="text-sm text-fg">The report store is not reachable.</p>
           <p className="mt-2 text-xs leading-relaxed text-muted">{loadError}</p>
-          <p className="mt-3 text-xs leading-relaxed text-muted">
-            Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, and that supabase/schema.sql has been
-            run.
-          </p>
         </div>
       )}
 
@@ -68,7 +65,9 @@ export default async function AdminPage({
       <ul className="grid gap-px bg-line">
         {reports.map((r) => (
           <li key={r.id} className="bg-base px-5 py-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            {/* min-w-0 on both the row and the text column is what lets
+                the title actually clip instead of pushing the page wide */}
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span
@@ -77,11 +76,13 @@ export default async function AdminPage({
                       r.status === "published"
                         ? {
                             color: "var(--signal-positive)",
-                            background: "color-mix(in srgb, var(--signal-positive) 12%, transparent)",
+                            background:
+                              "color-mix(in srgb, var(--signal-positive) 12%, transparent)",
                           }
                         : {
                             color: "var(--signal-caution)",
-                            background: "color-mix(in srgb, var(--signal-caution) 12%, transparent)",
+                            background:
+                              "color-mix(in srgb, var(--signal-caution) 12%, transparent)",
                           }
                     }
                   >
@@ -92,13 +93,20 @@ export default async function AdminPage({
                   </span>
                 </div>
 
-                <h2 className="font-display mt-2.5 truncate text-base font-bold text-fg">
+                <h2 className="font-display mt-2.5 line-clamp-2 text-base leading-snug font-bold text-fg">
                   {r.title}
                 </h2>
                 <p className="font-mono mt-1 truncate text-[11px] text-muted">/{r.slug}</p>
               </div>
 
-              <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+                <Link
+                  href={`/admin/${r.id}/preview`}
+                  className="font-mono border border-gold/50 px-3 py-1.5 text-[10px] tracking-[0.14em] text-gold uppercase transition hover:bg-gold/10"
+                >
+                  Read
+                </Link>
+
                 <Link
                   href={`/admin/${r.id}`}
                   className="font-mono border border-line px-3 py-1.5 text-[10px] tracking-[0.14em] text-muted uppercase transition hover:border-gold/50 hover:text-gold"
@@ -107,31 +115,23 @@ export default async function AdminPage({
                 </Link>
 
                 {r.status === "published" ? (
-                  <>
-                    <Link
-                      href={`/dashboard/reports/${r.slug}`}
+                  <form action={setStatus}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <input type="hidden" name="status" value="draft" />
+                    <button
+                      type="submit"
                       className="font-mono border border-line px-3 py-1.5 text-[10px] tracking-[0.14em] text-muted uppercase transition hover:border-gold/50 hover:text-gold"
                     >
-                      View
-                    </Link>
-                    <form action={setStatus}>
-                      <input type="hidden" name="id" value={r.id} />
-                      <input type="hidden" name="status" value="draft" />
-                      <button
-                        type="submit"
-                        className="font-mono border border-line px-3 py-1.5 text-[10px] tracking-[0.14em] text-muted uppercase transition hover:border-gold/50 hover:text-gold"
-                      >
-                        Unpublish
-                      </button>
-                    </form>
-                  </>
+                      Unpublish
+                    </button>
+                  </form>
                 ) : (
                   <form action={setStatus}>
                     <input type="hidden" name="id" value={r.id} />
                     <input type="hidden" name="status" value="published" />
                     <button
                       type="submit"
-                      className="font-mono border border-gold/50 px-3 py-1.5 text-[10px] tracking-[0.14em] text-gold uppercase transition hover:bg-gold/10"
+                      className="font-mono border border-line px-3 py-1.5 text-[10px] tracking-[0.14em] text-muted uppercase transition hover:border-gold/50 hover:text-gold"
                     >
                       Publish
                     </button>

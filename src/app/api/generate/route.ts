@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
     const status = auto ? "published" : "draft";
 
     const date = new Date().toISOString().slice(0, 10);
-    const base = slugify(`${report.title}-${date}`) || `${desk}-${slot}-${date}`;
+    // Trim the title before appending the date, so the date never gets cut off.
+    const base = `${slugify(report.title).slice(0, 60).replace(/-+$/, "")}-${date}`;
     const slug = await uniqueSlug(base);
 
     const row: ReportInsert = {
