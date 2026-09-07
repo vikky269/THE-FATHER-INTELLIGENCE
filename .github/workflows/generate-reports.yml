@@ -1,0 +1,85 @@
+name: Generate reports
+
+# GitHub's scheduler runs in UTC and can drift by several minutes under
+# load. That is fine for daily briefings; do not rely on it for anything
+# that must land at an exact second.
+on:
+  schedule:
+    - cron: "0 7 * * *"    # 08:00 WAT — full Market Universe
+    - cron: "0 9 * * *"    # 10:00 WAT — live update
+    - cron: "0 10 * * *"   # 11:00 WAT — music desk
+    - cron: "0 11 * * *"   # 12:00 WAT — live update
+    - cron: "30 12 * * *"  # 13:30 WAT — data flash (CPI / NFP window)
+    - cron: "0 13 * * *"   # 14:00 WAT — live update
+    - cron: "0 15 * * *"   # 16:00 WAT — live update
+    - cron: "0 20 * * *"   # 21:00 WAT — daily close
+
+  # Manual trigger, so a run can be tested without waiting for the cron.
+  workflow_dispatch:
+    inputs:
+      desk:
+        description: "Desk"
+        required: true
+        default: "markets"
+        type: choice
+        options: [markets, music]
+      slot:
+        description: "Slot"
+        required: true
+        default: "full"
+        type: choice
+        options: [full, update, flash, close]
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Only the Supabase client is needed at runtime; skipping the full
+      # install keeps each run to a few seconds of setup.
+      - name: Install runtime dependency
+        run: npm install @supabase/supabase-js --no-save --no-audit --no-fund
+
+      # Maps the schedule that fired onto a desk and slot. A manual run
+      # uses the inputs instead.
+      - name: Resolve desk and slot
+        id: which
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "desk=${{ inputs.desk }}" >> $GITHUB_OUTPUT
+            echo "slot=${{ inputs.slot }}" >> $GITHUB_OUTPUT
+          else
+            case "${{ github.event.schedule }}" in
+              "0 7 * * *")   echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=full"   >> $GITHUB_OUTPUT ;;
+              "0 9 * * *")   echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=update" >> $GITHUB_OUTPUT ;;
+              "0 10 * * *")  echo "desk=music"   >> $GITHUB_OUTPUT; echo "slot=full"   >> $GITHUB_OUTPUT ;;
+              "0 11 * * *")  echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=update" >> $GITHUB_OUTPUT ;;
+              "30 12 * * *") echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=flash"  >> $GITHUB_OUTPUT ;;
+              "0 13 * * *")  echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=update" >> $GITHUB_OUTPUT ;;
+              "0 15 * * *")  echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=update" >> $GITHUB_OUTPUT ;;
+              "0 20 * * *")  echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=close"  >> $GITHUB_OUTPUT ;;
+              *)             echo "desk=markets" >> $GITHUB_OUTPUT; echo "slot=update" >> $GITHUB_OUTPUT ;;
+            esac
+          fi
+
+      - name: Generate report
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+          REVALIDATE_TOKEN: ${{ secrets.REVALIDATE_TOKEN }}
+        run: |
+          node scripts/generate-report.mjs \
+            --desk "${{ steps.which.outputs.desk }}" \
+            --slot "${{ steps.which.outputs.slot }}"
