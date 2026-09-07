@@ -26,4 +26,4 @@ export default async function handler() {
   console.log(`[markets-update-late] ${res.status} ${(await res.text()).slice(0, 300)}`);
 }
 
-export const config: Config = { schedule: "0 15 * * 1-5" };
+export const config: Config = { schedule: "0 15 * * *" };

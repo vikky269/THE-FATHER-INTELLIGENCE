@@ -7,11 +7,8 @@ out
 next-env.d.ts
 
 # secrets & generated content
-prompts/father-framework.md
 .env
 .env.local
 
 # clerk configuration (can include secrets)
 /.clerk/
-prompts/*.md
-!prompts/README.md
