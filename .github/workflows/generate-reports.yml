@@ -38,9 +38,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+        - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       # Only the Supabase client is needed at runtime; skipping the full
       # install keeps each run to a few seconds of setup.
