@@ -32,6 +32,21 @@ const { values: args } = parseArgs({
 const DESK = args.desk;
 const SLOT = args.slot;
 
+
+/**
+ * Where this run came from, recorded so /admin can tell a scheduled report
+ * from one someone triggered by hand. GitHub sets GITHUB_EVENT_NAME to
+ * "schedule" or "workflow_dispatch"; absent means a developer machine.
+ */
+const RUN_SOURCE =
+  process.env.GITHUB_EVENT_NAME === "schedule"
+    ? "cron"
+    : process.env.GITHUB_EVENT_NAME === "workflow_dispatch"
+      ? "dispatch"
+      : process.env.GITHUB_ACTIONS
+        ? "actions"
+        : "local";
+
 if (!["markets", "music"].includes(DESK)) fail(`Unknown desk: ${DESK}`);
 if (!["full", "update", "flash", "close"].includes(SLOT)) fail(`Unknown slot: ${SLOT}`);
 
@@ -481,7 +496,7 @@ async function save(report) {
     status,
     visibility: "members",
     author_name: "The Father Intelligence Research Desk",
-    created_by: `auto:${SLOT}`,
+    created_by: `${RUN_SOURCE}:${SLOT}`,
     published_at: status === "published" ? new Date().toISOString() : null,
   });
 
@@ -533,4 +548,7 @@ const { slug, status } = await save(report);
 await revalidate(slug);
 
 console.log(`\n✓ ${status.toUpperCase()} — /${slug}`);
+console.log(`  ${snapshot.data.length} verified data points\n`);
+console.log(`\n✓ ${status.toUpperCase()} — /${slug}`);
+console.log(`  source: ${RUN_SOURCE} · slot: ${SLOT}`);
 console.log(`  ${snapshot.data.length} verified data points\n`);

@@ -103,7 +103,7 @@ export function MarketTape() {
   const items = [...GLOBAL_TAPE, ...GLOBAL_TAPE];
 
   return (
-    <section id="markets" className="scroll-mt-24">
+    <section id="tape" className="scroll-mt-24">
       <div className="tape-rail relative overflow-hidden border-y border-line bg-surface/70 py-3">
         <div className="tape-track" aria-hidden>
           {items.map((t, i) => (

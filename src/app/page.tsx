@@ -112,6 +112,7 @@ export default async function Home() {
               <div className="mt-9 flex flex-wrap gap-3">
                 <GoldButton href="/sign-up">Enter Mission Control</GoldButton>
                 <GhostButton href="/reports">Read latest intelligence</GhostButton>
+                <GhostButton href="/markets">Read previous reports</GhostButton>
               </div>
             </div>
 

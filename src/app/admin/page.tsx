@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { deleteReport, setStatus } from "@/lib/actions";
 import { listAll } from "@/lib/db";
+import TimeStamp from "@/components/TimeStamps";
+import SourceBadge from "@/components/SourceBadge";
 
 export default async function AdminPage({
   searchParams,
@@ -91,12 +93,20 @@ export default async function AdminPage({
                   <span className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">
                     {r.category} · {r.report_date}
                   </span>
+
+                  {/* Where it came from: cron, a manual run, or a hand paste */}
+                  <SourceBadge createdBy={r.created_by} />
                 </div>
 
                 <h2 className="font-display mt-2.5 line-clamp-2 text-base leading-snug font-bold text-fg">
                   {r.title}
                 </h2>
-                <p className="font-mono mt-1 truncate text-[11px] text-muted">/{r.slug}</p>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <p className="font-mono truncate text-[11px] text-muted">/{r.slug}</p>
+                  <span className="font-mono text-[11px] text-muted">
+                    <TimeStamp iso={r.created_at} prefix="dropped " />
+                  </span>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:shrink-0">

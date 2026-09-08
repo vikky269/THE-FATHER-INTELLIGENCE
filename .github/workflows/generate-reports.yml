@@ -71,6 +71,7 @@ jobs:
 
       - name: Generate report
         env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
