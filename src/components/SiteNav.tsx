@@ -12,7 +12,7 @@ import { Wordmark } from "./ui";
  */
 const LINKS = [
   { href: "/#about", label: "About" },
-  { href: "/#markets", label: "Markets" },
+  { href: "/markets", label: "Markets" },
   { href: "/#research", label: "Research" },
   { href: "/#reports", label: "Reports" },
   { href: "/#business", label: "Business" },

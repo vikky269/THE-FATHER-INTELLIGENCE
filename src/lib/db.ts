@@ -18,6 +18,7 @@ function required(name: string): string {
 
 export type ReportStatus = "draft" | "published";
 export type ReportVisibility = "members" | "public";
+export type Category = "markets" | "music" | "business" | "culture" | "research";
 
 export type ReportInsert = {
   slug: string;
@@ -91,6 +92,25 @@ export async function listPublished(limit = 50): Promise<ReportRow[]> {
     .limit(limit);
 
   if (error) throw new Error(`Could not load reports: ${error.message}`);
+  return data ?? [];
+}
+
+
+/** Published reports for a single desk, newest first. */
+export async function listPublishedByCategory(
+  category: Category,
+  limit = 100,
+): Promise<ReportRow[]> {
+  const { data, error } = await db()
+    .from("reports")
+    .select("*")
+    .eq("status", "published")
+    .eq("category", category)
+    .order("report_date", { ascending: false })
+    .order("published_at", { ascending: false, nullsFirst: false })
+    .limit(limit);
+
+  if (error) throw new Error(`Could not load ${category} reports: ${error.message}`);
   return data ?? [];
 }
 
