@@ -127,15 +127,13 @@ async function fetchCrypto(): Promise<MarketDatum[]> {
 /* ------------------------------------------------------------ Twelve Data */
 
 /**
- * Free-tier symbol set, verified against Twelve Data.
- *
- * Index symbols (SPX, IXIC, DJI) and silver (XAG/USD) are gated behind a
- * paid plan, so equities are tracked through their ETF proxies instead —
- * which is what the framework's own reports already do. VIX has no free
- * symbol at all; it is simply absent and gets flagged ⚪ data-gated.
+ * Free-tier symbol set, verified against Twelve Data. Silver, VIX and the
+ * raw index levels (SPX/IXIC/DJI) 403 on the free plan, so equities are
+ * tracked through their ETF proxies instead — labelled explicitly as such
+ * so a proxy is never mistaken for the index it tracks.
  */
 const TD_SYMBOLS: { symbol: string; label: string; prefix?: string; suffix?: string }[] = [
-  { symbol: "XAU/USD", label: "Spot Gold", prefix: "$", suffix: "/oz" },
+  { symbol: "XAU/USD", label: "Gold", prefix: "$", suffix: "/oz" },
   { symbol: "EUR/USD", label: "EUR/USD" },
   { symbol: "GBP/USD", label: "GBP/USD" },
   { symbol: "USD/JPY", label: "USD/JPY" },
