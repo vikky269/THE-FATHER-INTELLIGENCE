@@ -7,6 +7,7 @@ import VideoEmbed from "@/components/VideoEmbed";
 import GlobeNetwork from "@/components/GlobeNetwork";
 import { MarketTape, RegimePanel, StatCard } from "@/components/HeroPanels";
 import { getSettings } from "@/lib/settings";
+import SocialLinks from "@/components/SocialLinks";
 import { Dot, GhostButton, GoldButton, Meter, SectionHead, Wordmark } from "@/components/ui";
 import {
   BRIEFING,
@@ -26,6 +27,7 @@ import { listPublished, getPublishingStats } from "@/lib/db";
 import MissionStrip from "@/components/MissionStrip";
 import LiveMarketTape from "@/components/LiveMarketTape";
 import { json } from "zod";
+import LiveTicker from "@/components/LiveTicker";
 
 /**
  * Revalidated every 5 minutes; publishing also calls revalidatePath("/")
@@ -166,9 +168,11 @@ export default async function Home() {
           {/* <MissionStrip /> */}
         </div>
       </section>
+      
 
+      <LiveTicker />
 
-      <LiveMarketTape />
+      {/* <LiveMarketTape /> */}
 
       
 
@@ -387,11 +391,14 @@ export default async function Home() {
       <footer className="border-t border-line bg-surface/60">
         <div className="mx-auto max-w-6xl px-5 py-14">
           <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+           <div>
               <Wordmark size={38} />
               <p className="font-mono mt-5 text-[10px] tracking-[0.2em] text-gold-deep uppercase">
                 Intelligence before decisions.™
               </p>
+              <div className="mt-5">
+                <SocialLinks />
+              </div>
             </div>
 
             <div className="max-w-md">
