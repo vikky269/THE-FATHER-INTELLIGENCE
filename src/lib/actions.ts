@@ -7,6 +7,7 @@ import { db, getById, uniqueSlug, type ReportInsert } from "@/lib/db";
 import { normaliseReport, slugify, suggestExcerpt } from "@/lib/report-format";
 import { setSetting } from "@/lib/settings";
 import { parseYouTubeId } from "@/lib/youtube";
+import { report } from "process";
 
 export type FormState = { error?: string; ok?: string } | undefined;
 
@@ -73,6 +74,7 @@ export async function saveReport(_prev: FormState, formData: FormData): Promise<
     excerpt,
     body_raw: f.body,
     body_md: normaliseReport(f.body),
+    report_data: null,
     category: f.category,
     framework_version: f.frameworkVersion || null,
     session_label: f.sessionLabel || null,
