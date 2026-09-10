@@ -1,73 +1,82 @@
-# Report automation — setup
+# Live market tape — setup
 
-## 1. Install the Netlify functions package
+## What this does
 
-```bash
-npm i -D @netlify/functions
+The tape on the landing page now reads real figures instead of sample
+data. The numbers come from `report_data`, a new JSONB column populated
+directly from the verified market snapshot the generator already fetches
+for every markets report — never parsed back out of the generated prose.
+A hand-pasted report (or the music desk) simply has `report_data = null`,
+and the tape hides itself rather than showing something stale or invented.
+
+## 1. Run the migration
+
+`supabase/report_data.sql` in the Supabase SQL editor. Adds one nullable
+column; nothing else changes, no existing rows are touched.
+
+## 2. Replace `scripts/generate-report.mjs`
+
+Same generator, with two additions:
+
+- `buildReportData(snapshot)` — builds the tape straight from the fetched
+  snapshot (13 tracked instruments: gold, EUR/USD, GBP/USD, USD/JPY,
+  US 10Y/2Y, Brent, WTI, BTC, ETH, SPY, QQQ, DIA). Anything the snapshot
+  didn't have is simply absent, and its label is recorded under `missing`.
+- `save()` now writes `report_data: buildReportData(snapshot)` on insert.
+
+The music desk always gets `report_data: null` — it never has a market
+snapshot to build one from.
+
+## 3. Add the two library files
+
+`src/lib/report-data.ts` — the type, plus `parseReportData()`, which
+validates the JSONB value before anything renders it. Tested against
+eight malformed shapes (wrong version, non-array tape, missing fields,
+a bare string); every one safely returns `null` rather than throwing or
+rendering garbage.
+
+`src/lib/live-tape.ts` — fetches the most recent **published markets**
+report that actually has `report_data`. Scoped to `category=markets` on
+purpose: falling back to a music report here would put a gold ticker
+under an Afrobeats piece.
+
+## 4. Add the component
+
+`src/components/LiveMarketTape.tsx` — same scrolling-rail visual as
+before. End-of-day figures (Treasuries, oil) carry an `EOD` tag inline,
+matching how the report body itself flags them. Renders nothing until a
+markets report with data exists.
+
+## 5. Wire it into the homepage
+
+In `page.tsx`:
+
+```tsx
+import LiveMarketTape from "@/components/LiveMarketTape";
 ```
 
-## 2. Database
+Replace:
 
-Run `supabase/automation.sql` in the Supabase SQL editor.
-
-## 3. Prompts
-
-Create `prompts/father-framework.md` and paste the Master Prompt v5.0.
-See `prompts/README.md` — in particular, strip any "browse the web"
-instruction, since prices now come from real providers.
-
-Add to `.gitignore`:
-
-```
-prompts/*.md
-!prompts/README.md
+```tsx
+{!latest && <MarketTape />}
 ```
 
-## 4. Environment variables
+with:
 
-See `.env.additions`. Add them to `.env.local` **and** to Netlify.
-
-## 5. Deploy, then test manually before trusting the cron
-
-Scheduled functions only run on published deploys, so test the endpoint
-by hand first:
-
-```bash
-curl -X POST "https://thefatherintelligence.com/api/generate?desk=markets&slot=full" \
-  -H "Authorization: Bearer $GENERATE_API_TOKEN"
+```tsx
+<LiveMarketTape />
 ```
 
-A good response looks like:
+No conditional needed — the component decides for itself whether it has
+anything real to show.
 
-```json
-{ "ok": true, "slug": "...", "status": "draft", "verifiedDataPoints": 14, "tookMs": 48210 }
-```
+You can delete the old `MarketTape` export from `HeroPanels.tsx` once
+this is confirmed working, along with the sample `GLOBAL_TAPE` array in
+`reports.ts` if nothing else references it.
 
-Then open `/admin` — the report is waiting as a draft.
+## After deploying
 
-**Check `verifiedDataPoints` before trusting anything.** If it is 0 the run
-is refused outright; if it is low, a data provider is failing and the
-report will be full of ⚪ data-gated markers.
-
-## 6. The schedule (UTC)
-
-| Time | Desk | Slot |
-| --- | --- | --- |
-| 07:00 Mon–Fri | markets | full Market Universe |
-| 09:00 Mon–Fri | markets | live update |
-| 11:00 Mon–Fri | markets | live update |
-| 12:30 Mon–Fri | markets | data flash (CPI / NFP window) |
-| 13:00 Mon–Fri | markets | live update |
-| 15:00 Mon–Fri | markets | live update |
-| 20:00 Mon–Fri | markets | daily close |
-| 10:00 daily   | music   | full report |
-
-Edit the `schedule` in the relevant file under `netlify/functions/`.
-
-## 7. Flipping to auto-publish
-
-Everything lands as a draft while `auto_publish` is `off`. When you are
-ready, in Supabase → Table Editor → `site_settings`, set `auto_publish`
-to `on`. No deploy needed.
-
-Do not do this on day one. Watch a week of drafts first.
+Every markets report generated **from now on** carries `report_data`.
+Anything published earlier has `report_data = null` and the tape simply
+skips it — it will start showing real figures from the next scheduled
+run onward, not retroactively.

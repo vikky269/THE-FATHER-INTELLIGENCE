@@ -11,7 +11,7 @@ import { Wordmark } from "./ui";
  * nowhere is worse than one that isn't there.
  */
 const LINKS = [
-  { href: "/#about", label: "About" },
+  { href: "/about", label: "About" },
   { href: "/markets", label: "Markets" },
   { href: "/#research", label: "Research" },
   { href: "/#reports", label: "Reports" },

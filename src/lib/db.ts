@@ -30,13 +30,13 @@ export type ReportInsert = {
   framework_version: string | null;
   session_label: string | null;
   report_date: string;
+  report_data: unknown | null;
   status: ReportStatus;
   visibility: ReportVisibility;
   author_name: string;
   created_by: string | null;
   published_at: string | null;
 };
-
 export type ReportRow = ReportInsert & {
   id: string;
   created_at: string;
@@ -153,4 +153,32 @@ export async function uniqueSlug(base: string, ignoreId?: string): Promise<strin
     candidate = `${base}-${n}`;
   }
   return `${base}-${Date.now()}`;
+}
+
+
+export type PublishingStats = {
+  totalPublished: number;
+  publishedLast30Days: number;
+  activeDesks: number;
+};
+
+/** Real counts from the reports table — nothing inferred or parsed. */
+export async function getPublishingStats(): Promise<PublishingStats> {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [total, recent, desks] = await Promise.all([
+    db().from("reports").select("id", { count: "exact", head: true }).eq("status", "published"),
+    db()
+      .from("reports")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published")
+      .gte("published_at", since),
+    db().from("reports").select("category").eq("status", "published"),
+  ]);
+
+  return {
+    totalPublished: total.count ?? 0,
+    publishedLast30Days: recent.count ?? 0,
+    activeDesks: new Set((desks.data ?? []).map((d) => d.category)).size,
+  };
 }
