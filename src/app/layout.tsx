@@ -1,13 +1,14 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Cinzel, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { SITE, organizationJsonLd } from "@/lib/seo";
 import "./globals.css";
 
-const cinzel = Cinzel({
+
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "900"],
-  variable: "--font-cinzel",
+  weight: ["500", "600", "700"],
+  variable: "--font-display-face",
   display: "swap",
 });
 
@@ -91,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       data-theme="light"
       suppressHydrationWarning
-      className={`${cinzel.variable} ${instrument.variable} ${mono.variable}`}
+      className={`${spaceGrotesk.variable} ${instrument.variable} ${mono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />

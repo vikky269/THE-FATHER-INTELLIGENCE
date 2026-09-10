@@ -32,21 +32,6 @@ const { values: args } = parseArgs({
 const DESK = args.desk;
 const SLOT = args.slot;
 
-
-/**
- * Where this run came from, recorded so /admin can tell a scheduled report
- * from one someone triggered by hand. GitHub sets GITHUB_EVENT_NAME to
- * "schedule" or "workflow_dispatch"; absent means a developer machine.
- */
-const RUN_SOURCE =
-  process.env.GITHUB_EVENT_NAME === "schedule"
-    ? "cron"
-    : process.env.GITHUB_EVENT_NAME === "workflow_dispatch"
-      ? "dispatch"
-      : process.env.GITHUB_ACTIONS
-        ? "actions"
-        : "local";
-
 if (!["markets", "music"].includes(DESK)) fail(`Unknown desk: ${DESK}`);
 if (!["full", "update", "flash", "close"].includes(SLOT)) fail(`Unknown slot: ${SLOT}`);
 
@@ -243,6 +228,47 @@ function formatSnapshot(snap) {
     `VERIFIED MARKET DATA (fetched ${snap.fetchedAt})\n${lines.join("\n")}` +
     `\n\nUNAVAILABLE THIS RUN (mark ⚪ data-gated, do NOT estimate):\n${snap.missing.join(", ")}`
   );
+}
+
+/**
+ * Builds the structured tape data straight from the verified snapshot —
+ * the same object handed to the model, not anything parsed back out of
+ * its prose. That is what keeps this column trustworthy: it cannot drift
+ * from reality, because it never passed through the model at all.
+ */
+function buildReportData(snapshot) {
+  if (!snapshot || snapshot.data.length === 0) return null;
+
+  const by = (label) => snapshot.data.find((d) => d.instrument === label) ?? null;
+
+  const pick = (label, displayName) => {
+    const d = by(label);
+    if (!d) return null;
+    return { instrument: displayName, value: d.value, live: d.live, asOf: d.asOf };
+  };
+
+  const tape = [
+    pick("Spot Gold", "Gold"),
+    pick("EUR/USD", "EUR/USD"),
+    pick("GBP/USD", "GBP/USD"),
+    pick("USD/JPY", "USD/JPY"),
+    pick("US 10Y Treasury", "US 10Y"),
+    pick("US 2Y Treasury", "US 2Y"),
+    pick("Brent Crude", "Brent"),
+    pick("WTI Crude", "WTI"),
+    pick("Bitcoin", "Bitcoin"),
+    pick("Ethereum", "Ethereum"),
+    pick("S&P 500 ETF (SPY, not the index level)", "SPY"),
+    pick("Nasdaq 100 ETF (QQQ, not the index level)", "QQQ"),
+    pick("Dow Jones ETF (DIA, not the index level)", "DIA"),
+  ].filter(Boolean);
+
+  return {
+    version: 1,
+    fetchedAt: snapshot.fetchedAt,
+    tape,
+    missing: snapshot.missing,
+  };
 }
 
 /* ------------------------------------------------------------ generation */
@@ -459,7 +485,7 @@ function normaliseBody(md) {
   return out.join("\n");
 }
 
-async function save(report) {
+async function save(report, snapshot) {
   const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   });
@@ -493,10 +519,11 @@ async function save(report) {
     framework_version: report.frameworkVersion ?? null,
     session_label: report.sessionLabel ?? null,
     report_date: date,
+    report_data: buildReportData(snapshot),
     status,
     visibility: "members",
     author_name: "The Father Intelligence Research Desk",
-    created_by: `${RUN_SOURCE}:${SLOT}`,
+    created_by: `auto:${SLOT}`,
     published_at: status === "published" ? new Date().toISOString() : null,
   });
 
@@ -544,11 +571,8 @@ if (args["dry-run"]) {
   process.exit(0);
 }
 
-const { slug, status } = await save(report);
+const { slug, status } = await save(report, snapshot);
 await revalidate(slug);
 
 console.log(`\n✓ ${status.toUpperCase()} — /${slug}`);
-console.log(`  ${snapshot.data.length} verified data points\n`);
-console.log(`\n✓ ${status.toUpperCase()} — /${slug}`);
-console.log(`  source: ${RUN_SOURCE} · slot: ${SLOT}`);
 console.log(`  ${snapshot.data.length} verified data points\n`);

@@ -151,9 +151,10 @@
   --color-sunken: var(--sunken);
   --color-hover: var(--hover);
 
-  --font-display: var(--font-cinzel), Georgia, serif;
+  /* --font-display: var(--font-cinzel), Georgia, serif; */
   --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
+  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ======================================================================= */

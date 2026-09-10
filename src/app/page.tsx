@@ -22,8 +22,9 @@ import {
 } from "@/lib/reports";
 import HeroVisual from "@/components/HeroVisual";
 import TodaysBriefing from "@/components/TodaysBriefing";
-import { listPublished } from "@/lib/db";
+import { listPublished, getPublishingStats } from "@/lib/db";
 import MissionStrip from "@/components/MissionStrip";
+import LiveMarketTape from "@/components/LiveMarketTape";
 
 /**
  * Revalidated every 5 minutes; publishing also calls revalidatePath("/")
@@ -42,6 +43,13 @@ export default async function Home() {
   const latest = await listPublished(1)
     .then((r) => r[0] ?? null)
     .catch(() => null);
+
+
+    const stats = await getPublishingStats().catch(() => ({
+  totalPublished: 0,
+  publishedLast30Days: 0,
+  activeDesks: 0,
+}));
 
   return (
     <>
@@ -127,54 +135,41 @@ export default async function Home() {
            
           </div>
 
-          <MissionStrip />
+
+                      <div className="mt-12 grid gap-4 sm:grid-cols-3">
+            <StatCard
+              icon="target"
+              value={String(stats.totalPublished)}
+              label="Briefings published"
+              status="All time"
+              progress={Math.min(100, stats.totalPublished * 4)}
+            />
+            <StatCard
+              icon="shield"
+              value={String(stats.publishedLast30Days)}
+              label="Published this month"
+              status="Rolling 30 days"
+              progress={Math.min(100, stats.publishedLast30Days * 8)}
+            />
+            <StatCard
+              icon="pulse"
+              value={String(stats.activeDesks)}
+              label="Active desks"
+              status={stats.activeDesks > 1 ? "Multi-desk coverage" : "Markets"}
+              progress={stats.activeDesks * 40}
+            />
+          </div>
+
+        <MissionStrip stats={stats} latest={latest} />
+
+          {/* <MissionStrip /> */}
         </div>
       </section>
 
 
+      <LiveMarketTape />
 
-      <MarketTape />
-
-      {/* -------------------------------------------------------- briefing */}
-      {/* <section id="briefing" className="mx-auto max-w-6xl scroll-mt-24 px-5 py-20">
-        <SectionHead
-          index="I"
-          title="Today's briefing"
-          kicker={`${BRIEFING.dateLabel} · ${BRIEFING.session}. Six engines are scored independently, then reconciled into a single strategic bias.`}
-        />
-
-        <div className="mb-8 grid gap-8 lg:grid-cols-[1fr_400px]">
-          <div className="card p-6 sm:p-8">
-            <p className="text-[15px] leading-relaxed text-fg/85">{EXECUTIVE_INTELLIGENCE}</p>
-          </div>
-          <LiquidityLadder compact />
-        </div>
-
-        <div className="card relative overflow-hidden p-6 sm:p-8">
-
-          <p className="eyebrow">Executive command dashboard</p>
-
-          <ul className="mt-6 grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
-            {COMMAND_ENGINES.map((e) => (
-              <li key={e.name} className="bg-surface px-5 py-5">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">
-                    {e.name}
-                  </span>
-                  <span className="font-mono text-sm text-gold">{e.score}</span>
-                </div>
-                <p className="mt-2.5 flex items-center gap-2 text-sm text-fg">
-                  <Dot signal={e.signal} />
-                  {e.status}
-                </p>
-                <div className="mt-4">
-                  <Meter value={e.score} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section> */}
+      
 
       {/* -------------------------------------------------------- briefing */}
       <TodaysBriefing report={latest} />
