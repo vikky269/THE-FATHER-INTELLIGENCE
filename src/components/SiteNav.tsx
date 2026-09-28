@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/about", label: "About" },
   { href: "/markets", label: "Markets" },
   { href: "/#research", label: "Research" },
+   { href: "/#products", label: "Products" },
   { href: "/#reports", label: "Reports" },
   { href: "/#business", label: "Business" },
   { href: "/#intelligence", label: "Intelligence" },
