@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Space_Grotesk, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { SITE, organizationJsonLd } from "@/lib/seo";
 import "./globals.css";
 
@@ -12,9 +12,16 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
-const instrument = Instrument_Sans({
+// const instrument = Instrument_Sans({
+//   subsets: ["latin"],
+//   variable: "--font-instrument",
+//   display: "swap",
+// });
+
+
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  variable: "--font-body-face",
   display: "swap",
 });
 
@@ -92,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       data-theme="light"
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${instrument.variable} ${mono.variable}`}
+      className={`${spaceGrotesk.variable} ${inter.variable} } ${mono.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
